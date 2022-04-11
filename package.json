@@ -1,0 +1,17 @@
+{
+  "name": "hire-archy",
+  "version": "1.0.0",
+  "description": "CLI Employee management app using MySql, Node.js, and Express.js",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.17.3",
+    "inquirer": "^8.2.2",
+    "mysql2": "^2.3.3"
+  }
+}
