@@ -7,7 +7,6 @@ const cTable = require('console.table');
 
 // add routes
 const db = require('./db/connection');
-const apiRoutes = require('./routes/apiRoutes');
 
 
 // Express middleware
@@ -23,7 +22,7 @@ app.use((req, res) => {
     res.status(404).end();
 });
 
-// Start server after DB connection
+// Start server after DB connection AM I DOING THIS RIGHT???
 db.connect(err => {
     if (err) throw err;
     console.log('Database connected.');

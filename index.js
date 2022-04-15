@@ -1,7 +1,8 @@
 const inquirer = require('inquirer');
 const mysql = require('mysql2');
 const cTable = require('console.table');
-const db = require('./db/index')
+const db = require('./db/index');
+const { findAllEmployees } = require('./db/index');
 
 function portal() {
 
@@ -111,17 +112,20 @@ function addEmployee(){
 }
 
 function updateEmployee(){
+
+    const employees = findEmployee();
+
     inquirer.prompt([
         {
             message: 'Which employee needs to be updated?',
-            type: 'list',
+            type: 'input',
             name:"updateEmp",
-            choices: ''
+            choices: [employees.first_name]
             // find how to pull the data and list it
         },
         {
             message:'What is their new role?',
-            type:'list',
+            type:'input',
             name: "updateRole",
             choices:''
             // find and list employees
