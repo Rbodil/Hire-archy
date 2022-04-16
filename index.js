@@ -5,14 +5,18 @@ const db = require('./db/index');
 
 function portal() {
 
-    // print tables?
 
     inquirer.prompt([
         {
             message: "What would you like to do?",
             type: "list",
             name: "addOptions",
-            choices: ['Add Department', 'Add Role', 'Add Employee', 'Update Employee Role', 'View Employees', 'View Roles', 'View Departments', 'View Hirearchy']
+            choices: [
+                'Add Department', 'Add Role',
+                'Add Employee', 'Update Employee Role', 
+                'View Employees','View Roles', 
+                'View Departments'
+            ]
         }
     ]).then((userChoice) => {
 
@@ -37,15 +41,10 @@ function portal() {
                 break;
             case 'View Departments':
                 viewDepartments();
-                break;
-            case 'View Hirearchy':
-                viewHirearchy();
+
         }
     })
 }
-
-// To Do add view roles view departments 
-
 
 function addDepartment() {
 
@@ -56,7 +55,7 @@ function addDepartment() {
             name: "title"
         }
     ]).then(answer => {
-        console.log(answer)
+        //runs createDept and logs whether any data was changed in the database
         db.createDept(answer.title).then(data => {
             if (data[0].affectedRows > 0) {
                 console.log('Department created!');
@@ -70,6 +69,7 @@ function addDepartment() {
 }
 
 function addRole() {
+    // destructures data returned from the query, finds specifically the 
     db.viewDepartments().then(([departments]) => {
         return departments.map(department => {
             return {
@@ -193,7 +193,7 @@ function updateEmployee() {
                     type: 'list',
                     name: "updateEmp",
                     choices: employees
-                    // find how to pull the data and list it
+
                 },
                 {
                     message: 'What is their new role?',
@@ -230,8 +230,5 @@ function viewDepartments(){
     db.viewDepartments().then(([departments]) => console.table(departments)).then(() => portal());
 }
 
-function viewHirearchy(){
-    db.viewHirearchy().then(([hirearchy]) => console.table(hirearchy)).then(() => portal());
-}
 
 portal();
