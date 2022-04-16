@@ -19,7 +19,13 @@ class db {
         return this.connection.promise().query('SELECT * FROM employee');
     };
     viewRoles() {
-        return this.connection.promise().query('SELECT * FROM role');
+        return this.connection.promise().query(
+            `SELECT 
+            role.id, role.title, role.salary,
+            department.title AS department
+            FROM role 
+            LEFT JOIN department 
+            ON role.department_id = department.id`);
     };
     viewDepartments() {
         return this.connection.promise().query('SELECT * FROM department');
