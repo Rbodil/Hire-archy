@@ -1,20 +1,33 @@
-INSERT INTO TABLE department(name)
+use hirearchy;
+
+INSERT INTO department
+    (title)
 VALUES
-    ('HR'),
-    ('Technical Support'),
     ('Sales'),
-    ('Accounting');
+    ('Engineering'),
+    ('Finance'),
+    ('Legal');
 
-INSERT INTO TABLE role(title, salary, department_id)
+INSERT INTO role
+    (title, salary, department_id)
 VALUES
-    ('HR Representative', '80000.00', '1'),
-    ('Full Stack Developer', '85000.00', '2'),
-    ('Sales Representative', '90000.00', '3'),
-    ('Accounts Recievable 1', '80000.00', '4');
+    ('Sales Lead', 100000, 1),
+    ('Salesperson', 80000, 1),
+    ('Lead Engineer', 150000, 2),
+    ('Software Engineer', 120000, 2),
+    ('Account Manager', 160000, 3),
+    ('Accountant', 125000, 3),
+    ('Legal Team Lead', 250000, 4),
+    ('Lawyer', 190000, 4);
 
-INSERT INTO TABLE employee (first_name, last_name, role_id)
+INSERT INTO employee
+    (first_name, last_name, role_id, manager_id)
 VALUES
-    ('Clark', 'Kent', '4'),
-    ('Lois','Lane','1'),
-    ('Lex','Luthor', '3'),
-    ('Wally','West', '2');
+    ('John', 'Doe', 1, NULL),
+    ('Mike', 'Chan', 2, 1),
+    ('Ashley', 'Rodriguez', 3, NULL),
+    ('Kevin', 'Tupik', 4, 3),
+    ('Kunal', 'Singh', 5, NULL),
+    ('Malia', 'Brown', 6, 5),
+    ('Sarah', 'Lourd', 7, NULL),
+    ('Tom', 'Allen', 8, 7);

@@ -7,4 +7,10 @@ const db = mysql.createConnection({
   database: 'hirearchy'
 });
 
+db.connect(err => {
+    if (err) throw err;
+});
+
+
+
 module.exports = db;

@@ -2,7 +2,6 @@ const inquirer = require('inquirer');
 const mysql = require('mysql2');
 const cTable = require('console.table');
 const db = require('./db/index');
-const { findAllEmployees } = require('./db/index');
 
 function portal() {
 
@@ -13,9 +12,9 @@ function portal() {
             message: "What would you like to do?",
             type: "list",
             name: "addOptions",
-            choices: ['Add Department', 'Add Role', 'Add Employee', 'Update Employee Role', 'Nothing']
+            choices: ['Add Department', 'Add Role', 'Add Employee', 'Update Employee Role', 'View Employees', 'View Roles', 'View Departments', 'View Hirearchy']
         }
-    ]).then(({ userChoice }) => {
+    ]).then((userChoice) => {
 
         switch (userChoice.addOptions) {
             case 'Add Department':
@@ -30,117 +29,209 @@ function portal() {
             case 'Update Employee Role':
                 updateEmployee();
                 break;
-            case 'Nothing':
-                generateTables();
+            case 'View Employees':
+                viewEmployees();
+                break;
+            case 'View Roles':
+                viewRoles();
+                break;
+            case 'View Departments':
+                viewDepartments();
+                break;
+            case 'View Hirearchy':
+                viewHirearchy();
         }
     })
 }
 
-// 'Add Department', 'Add Role', 'Add Employee', 'Update Employee' generateTables
+// To Do add view roles view departments 
 
-function addDepartment(){
+
+function addDepartment() {
 
     inquirer.prompt([
         {
             message: "What is the name of the department?",
             type: "input",
-            name: "deptName"
+            name: "title"
         }
-    ]).then(answer =>{
-        const newDept = new Department(answer);
-        //push newDept to tables data
-        db.createDept(newDept);
-        portal();
+    ]).then(answer => {
+        console.log(answer)
+        db.createDept(answer.title).then(data => {
+            if (data[0].affectedRows > 0) {
+                console.log('Department created!');
+                return portal();
+            }
+            console.log('Unable to create department');
+            portal();
+        })
     });
 
 }
 
-function addRole(){
-    inquirer.prompt([
-        {
-            message: "What is the name of the role?",
-            type: 'input',
-            name: "roleName"
-        },
-        {
-            message: 'What is the salary of this role?',
-            type: 'input',
-            name: 'roleSalary'
-        },
-        {
-            message: 'What department does this department belong to?',
-            type: 'input',
-            name: 'roleDept'
-        }
-    ]).then(answers =>{
-        const newRole = new Role(answers.roleName, answers.roleSalary, answers.roleDept);
-        //push newRole to tables data
-        db.createRole(newRole);
-        portal();
+function addRole() {
+    db.viewDepartments().then(([departments]) => {
+        return departments.map(department => {
+            return {
+                name: department.title,
+                value: department.id
+            }
+        })
+    }).then(departments => {
+
+        inquirer.prompt([
+            {
+                message: "What is the name of the role?",
+                type: 'input',
+                name: "title"
+            },
+            {
+                message: 'What is the salary of this role?',
+                type: 'number',
+                name: 'salary'
+            },
+            {
+                message: 'What department does this belong to (department id)?',
+                type: 'list',
+                name: 'department_id',
+                choices: departments
+            }
+        ]).then(answers => {
+            db.createRole(answers).then(data => {
+                if (data[0].affectedRows > 0) {
+                    console.log('Role created!');
+                    return portal();
+                }
+                console.log('Unable to create role');
+                portal();
+            })
+        })
     })
+
+
 
 }
 
-function addEmployee(){
-    inquirer.prompt([
-        {
-            message: 'What is their first name?',
-            type: 'input',
-            name: 'firstName'
-        },
-        {
-            message: 'What is their last name?',
-            type: 'input',
-            name: 'lastName'
-        },
-        {
-            message: 'What is their role?',
-            type: 'input',
-            name: 'empRole'
-            
-        },
-        {
-            message: "Who is this employee's manager?",
-            type: 'input',
-            name: 'manager'
-        }
-    ]).then(answers =>{
-        const newEmployee = new Employee(answers.firstName, answers.lastName, answers.empRole, answers.manager);
-        db.createEmployee(newEmployee);
-        portal();
+function addEmployee() {
+
+    db.viewEmployees().then(([employees]) => {
+        return employees.map(employee => {
+            return {
+                name: `${employee.first_name} ${employee.last_name}`,
+                value: employee.id
+            }
+        })
+    }).then(employees => {
+        db.viewRoles().then(([roles]) => {
+            return roles.map(role => {
+                return {
+                    name: role.title,
+                    value: role.id
+                }
+            })
+        }).then(roles => {
+            inquirer.prompt([
+                {
+                    message: 'What is their first name?',
+                    type: 'input',
+                    name: 'first_name'
+                },
+                {
+                    message: 'What is their last name?',
+                    type: 'input',
+                    name: 'last_name'
+                },
+                {
+                    message: 'What is their role?',
+                    type: 'list',
+                    name: 'role_id',
+                    choices: roles
+
+                },
+                {
+                    message: "What is this employee's manager's id?",
+                    type: 'list',
+                    name: 'manager_id',
+                    choices: employees
+                }
+            ]).then(answers => {
+                db.createEmployee(answers).then(data => {
+                    if (data[0].affectedRows > 0) {
+                        console.log('Employee created!');
+                        return portal();
+                    }
+                    console.log('Unable to create employee');
+                    portal();
+                })
+            })
+        })
     })
+    
 }
 
-function updateEmployee(){
+function updateEmployee() {
 
-    const employees = findEmployee();
-
-    inquirer.prompt([
-        {
-            message: 'Which employee needs to be updated?',
-            type: 'input',
-            name:"updateEmp",
-            choices: [employees.first_name]
-            // find how to pull the data and list it
-        },
-        {
-            message:'What is their new role?',
-            type:'input',
-            name: "updateRole",
-            choices:''
-            // find and list employees
-        }
-    ]).then(userChoice =>{
-        // push the updated info to tables
-        const changes = 
-        db.changeEmployee(changes)
+    db.viewEmployees().then(([employees]) => {
+        return employees.map(employee => {
+            return {
+                name: `${employee.first_name} ${employee.last_name}`,
+                value: employee.id
+            }
+        })
+    }).then(employees => {
+        db.viewRoles().then(([roles]) => {
+            return roles.map(role => {
+                return {
+                    name: role.title,
+                    value: role.id
+                }
+            })
+        }).then(roles => {
+            inquirer.prompt([
+                {
+                    message: 'Which employee needs to be updated?',
+                    type: 'list',
+                    name: "updateEmp",
+                    choices: employees
+                    // find how to pull the data and list it
+                },
+                {
+                    message: 'What is their new role?',
+                    type: 'list',
+                    name: "updateRole",
+                    choices: roles
+                }
+            ]).then(userChoice => {
+                db.updateRole(userChoice.updateRole, userChoice.updateEmp).then(data => {
+                    if (data[0].affectedRows > 0) {
+                        console.log('Employee updated');
+                        return portal();
+                    }
+                    console.log('Unable to update employee');
+                    portal();
+                })
+            })
+        })
     })
+
+
 
 }
 
-function generateTables(){
-    // print tables to console
+function viewEmployees() {
+    db.viewEmployees().then(([employees]) => console.table(employees)).then(() => portal());
+}
 
+function viewRoles() {
+    db.viewRoles().then(([roles]) => console.table(roles)).then(() => portal());
+}
+
+function viewDepartments(){
+    db.viewDepartments().then(([departments]) => console.table(departments)).then(() => portal());
+}
+
+function viewHirearchy(){
+    db.viewHirearchy().then(([hirearchy]) => console.table(hirearchy)).then(() => portal());
 }
 
 portal();
