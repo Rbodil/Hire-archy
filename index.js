@@ -202,6 +202,7 @@ function updateEmployee() {
                     choices: roles
                 }
             ]).then(userChoice => {
+                console.log(userChoice.updateRole, userChoice.updateEmp);
                 db.updateRole(userChoice.updateRole, userChoice.updateEmp).then(data => {
                     if (data[0].affectedRows > 0) {
                         console.log('Employee updated');

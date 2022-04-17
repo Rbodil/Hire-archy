@@ -18,6 +18,7 @@ class db {
     viewEmployees() {
         return this.connection.promise().query(
             `SELECT 
+            employee.id,
             employee.first_name,
             employee.last_name,
             role.title AS role_name,
@@ -48,7 +49,7 @@ class db {
         return this.connection.promise().query('SELECT first_name, last_name, role.title AS role_name FROM employee LEFT JOIN role ON employee.role_id = role.id');
     };
     updateRole(roleId, employeeId) {
-        return this.connection.promise().query('UPDATE employee SET role_id = ? WHERE id = ?', [roleId, employeeId]);
+        return this.connection.promise().query('UPDATE employee SET role_id = ? WHERE employee.id = ?', [roleId, employeeId]);
     };
 
 
